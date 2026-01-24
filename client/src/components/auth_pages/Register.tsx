@@ -57,7 +57,7 @@ export const Register: React.FC = () => {
         e.preventDefault();
         try {
             await register(identifier, password);
-            navigate('/projectdashboard');
+            navigate('/login');
         } catch (err) {
             setError('Registration failed');
         }
@@ -98,6 +98,15 @@ export const Register: React.FC = () => {
                         Register
                     </button>
                 </form>
+                <p className="text-center text-sm text-gray-600">
+                    Already have an account?{' '}
+                    <button
+                        onClick={() => navigate('/login')}
+                        className="text-[#2D2B58] hover:underline font-medium"
+                    >
+                        Login here
+                    </button>
+                </p>
             </div>
             <div className="absolute right-0 w-[893px] h-[1042px]">
                 <img src="/Rectangle 9.svg" alt="Register" className="w-full h-full object-cover" />

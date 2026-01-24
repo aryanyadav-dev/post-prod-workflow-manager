@@ -1,0 +1,17 @@
+{
+  "name": "post-production-workflow-manager",
+  "version": "1.0.0",
+  "description": "Post-Production Workflow Manager - Full Stack Application",
+  "scripts": {
+    "dev": "npm run dev:backend & npm run dev:frontend",
+    "dev:backend": "cd server && mvn spring-boot:run",
+    "dev:frontend": "cd client && npm run dev",
+    "install:all": "cd client && npm install",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd client && npm run build",
+    "build:backend": "cd server && mvn clean install"
+  },
+  "keywords": ["post-production", "workflow", "spring-boot", "react", "vite"],
+  "author": "",
+  "license": "ISC"
+}

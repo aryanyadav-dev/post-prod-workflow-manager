@@ -158,20 +158,27 @@ Business logic layer connecting controllers to repositories.
 - **Better for Media & Metadata Storage**: Efficiently stores media metadata, project files, and task information.
 
 ## Installation & Setup
-### Backend Setup
-```sh
-# Clone the repository
-git clone https://github.com/your-repo.git
-cd backend
 
-# Build & Run
+### Quick Start (Run Both Frontend & Backend)
+```sh
+# Install frontend dependencies
+npm run install:all
+
+# Run both frontend and backend simultaneously
+npm run dev
+```
+
+### Individual Setup
+#### Backend Setup
+```sh
+cd server
 mvn clean install
 mvn spring-boot:run
 ```
 
-### Frontend Setup
+#### Frontend Setup
 ```sh
-cd frontend
+cd client
 npm install
 npm run dev
 ```

@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Maven/Spring Boot
+server/target/
+server/.mvn/
+*.class
+*.jar
+*.war
+*.ear

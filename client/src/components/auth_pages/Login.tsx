@@ -99,6 +99,15 @@ export const Login: React.FC = () => {
                         Login
                     </button>
                 </form>
+                <p className="text-center text-sm text-gray-600">
+                    Don't have an account?{' '}
+                    <button
+                        onClick={() => navigate('/register')}
+                        className="text-[#2D2B58] hover:underline font-medium"
+                    >
+                        Register here
+                    </button>
+                </p>
             </div>
             <div className="absolute right-0 w-[893px] h-[1188px]">
                 <img src="/Rectangle 10.svg" alt="Login" className="w-full h-full object-cover" />

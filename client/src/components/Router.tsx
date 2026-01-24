@@ -92,6 +92,8 @@ export const Router = () => {
 
             {isAuthenticated ? (
                 <>
+                    <Route path="/projman" element={<ProjectManagement />} />
+                    <Route path="/projectdashboard" element={<ProjectDashboard />} />
                     <Route path="/dashboard" element={<ProtectedLayout />} />
                     <Route path="/workflow" element={<ProtectedLayout />} />
                     <Route path="/team" element={<ProtectedLayout />} />
@@ -103,9 +105,7 @@ export const Router = () => {
                     <Route path="/notes" element={<ProtectedLayout />} />
                     <Route path="/preview" element={<PreviewPage />} />
                     <Route path="/projectchatroom" element={<ProjectChatroom />} />
-                    <Route path="/projectdashboard" element={<ProjectDashboard />} />
                     <Route path="/createproj" element={<CreateProject />} />
-                    <Route path="/projman" element={<ProjectManagement />} />
                 </>
             ) : (
                 <Route path="*" element={<Navigate to="/login" replace />} />

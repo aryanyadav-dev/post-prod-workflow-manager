@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Project, TeamMember } from './types';
 import { projectService } from './services/projectService';
+import { FolderOpen, Plus, X, Users, ArrowLeft } from 'lucide-react';
 
 const ProjectManagement: React.FC = () => {
-    // State for project list
+    const navigate = useNavigate();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-
-    // State for new project form
     const [showForm, setShowForm] = useState(false);
     const [newProject, setNewProject] = useState<Project>({
         name: '',
@@ -17,14 +17,13 @@ const ProjectManagement: React.FC = () => {
         teamMembers: [{ name: '', count: 1 }]
     });
 
-    // Fetch existing projects
     useEffect(() => {
         fetchProjects();
     }, []);
 
     const fetchProjects = async () => {
         try {
-            setLoading(true);
+            setLoading(false);
             const data = await projectService.getProjects();
             setProjects(data);
             setError(null);
@@ -35,7 +34,6 @@ const ProjectManagement: React.FC = () => {
         }
     };
 
-    // Handle form input changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setNewProject({
             ...newProject,
@@ -43,7 +41,6 @@ const ProjectManagement: React.FC = () => {
         });
     };
 
-    // Handle team member changes
     const handleTeamMemberChange = (index: number, field: keyof TeamMember, value: string | number) => {
         const updatedMembers = [...newProject.teamMembers];
         updatedMembers[index] = {
@@ -56,7 +53,6 @@ const ProjectManagement: React.FC = () => {
         });
     };
 
-    // Add team member field
     const addTeamMember = () => {
         setNewProject({
             ...newProject,
@@ -64,7 +60,16 @@ const ProjectManagement: React.FC = () => {
         });
     };
 
-    // Handle project creation
+    const removeTeamMember = (index: number) => {
+        if (newProject.teamMembers.length > 1) {
+            const updatedMembers = newProject.teamMembers.filter((_, i) => i !== index);
+            setNewProject({
+                ...newProject,
+                teamMembers: updatedMembers
+            });
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -76,132 +81,178 @@ const ProjectManagement: React.FC = () => {
                 projectType: 'FULL_LENGTH_VIDEO',
                 teamMembers: [{ name: '', count: 1 }]
             });
-            fetchProjects(); // Refresh project list
+            fetchProjects();
+            navigate('/projectdashboard');
         } catch (err) {
             setError('Failed to create project');
         }
     };
 
-    if (loading) return <div className="p-4">Loading...</div>;
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        navigate('/login');
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+                <div className="text-white text-xl">Loading...</div>
+            </div>
+        );
+    }
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Project Management</h1>
-                <button
-                    onClick={() => setShowForm(!showForm)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                >
-                    {showForm ? 'Cancel' : 'Create New Project'}
-                </button>
-            </div>
-
-            {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                    {error}
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+            {/* Header */}
+            <header className="border-b border-gray-700 bg-gray-900/50 backdrop-blur-sm">
+                <div className="container mx-auto px-6 py-3 flex justify-between items-center">
+                    <div className="flex items-center space-x-2">
+                        <FolderOpen className="w-5 h-5 text-blue-400" />
+                        <h1 className="text-lg font-semibold">Project Management</h1>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                        <button
+                            onClick={() => navigate('/projectdashboard')}
+                            className="flex items-center space-x-1.5 px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 rounded-md transition-colors"
+                        >
+                            <ArrowLeft className="w-4 h-4" />
+                            <span>View All Projects</span>
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-1.5 text-sm bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
-            )}
+            </header>
 
-            {showForm && (
-                <form onSubmit={handleSubmit} className="mb-8 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                            Project Name
+            {/* Main Content */}
+            <main className="container mx-auto px-6 py-8">
+                <div className="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 className="text-3xl font-bold mb-2">Create New Project</h2>
+                        <p className="text-gray-400">Set up your post-production workflow</p>
+                    </div>
+                </div>
+
+                {error && (
+                    <div className="bg-red-500/10 border border-red-500 text-red-400 px-4 py-3 rounded-lg mb-6">
+                        {error}
+                    </div>
+                )}
+
+                {/* Project Form */}
+                <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-xl p-8">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-2 text-gray-300">
+                                Project Name *
+                            </label>
                             <input
                                 type="text"
                                 name="name"
                                 value={newProject.name}
                                 onChange={handleInputChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+                                placeholder="Enter project name"
                                 required
                             />
-                        </label>
-                    </div>
+                        </div>
 
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                            Description
+                        <div>
+                            <label className="block text-sm font-medium mb-2 text-gray-300">
+                                Description *
+                            </label>
                             <textarea
                                 name="description"
                                 value={newProject.description}
                                 onChange={handleInputChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                rows={4}
+                                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white resize-none"
+                                placeholder="Describe your project"
                                 required
                             />
-                        </label>
-                    </div>
+                        </div>
 
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">
-                            Project Type
+                        <div>
+                            <label className="block text-sm font-medium mb-2 text-gray-300">
+                                Project Type *
+                            </label>
                             <select
                                 name="projectType"
                                 value={newProject.projectType}
                                 onChange={handleInputChange}
-                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                className="w-full px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
                             >
                                 <option value="FULL_LENGTH_VIDEO">Full-Length Video</option>
                                 <option value="SHORT_FORM_CONTENT">Short-Form Content</option>
                             </select>
-                        </label>
-                    </div>
-
-                    <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Team Members</label>
-                        {newProject.teamMembers.map((member, index) => (
-                            <div key={index} className="flex gap-4 mb-2">
-                                <input
-                                    type="text"
-                                    placeholder="Role"
-                                    value={member.name}
-                                    onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
-                                    className="shadow appearance-none border rounded w-2/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                />
-                                <input
-                                    type="number"
-                                    placeholder="Count"
-                                    value={member.count}
-                                    onChange={(e) => handleTeamMemberChange(index, 'name', parseInt(e.target.value))}
-                                    className="shadow appearance-none border rounded w-1/3 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                                    min="1"
-                                />
-                            </div>
-                        ))}
-                        <button
-                            type="button"
-                            onClick={addTeamMember}
-                            className="mt-2 bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
-                        >
-                            Add Team Member
-                        </button>
-                    </div>
-
-                    <button
-                        type="submit"
-                        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    >
-                        Create Project
-                    </button>
-                </form>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.map((project) => (
-                    <div key={project.id} className="bg-white shadow-md rounded px-8 pt-6 pb-8">
-                        <h2 className="text-xl font-bold mb-2">{project.name}</h2>
-                        <p className="text-gray-700 mb-2">{project.description}</p>
-                        <p className="text-gray-600 mb-2">Type: {project.projectType}</p>
-                        <div className="mt-4">
-                            <h3 className="font-bold mb-2">Team Members:</h3>
-                            {project.teamMembers.map((member, index) => (
-                                <div key={index} className="text-gray-600">
-                                    {member.name}: {member.count}
-                                </div>
-                            ))}
                         </div>
-                    </div>
-                ))}
-            </div>
+
+                        <div>
+                            <label className="block text-sm font-medium mb-3 text-gray-300">
+                                Team Members
+                            </label>
+                            <div className="space-y-3">
+                                {newProject.teamMembers.map((member, index) => (
+                                    <div key={index} className="flex gap-3">
+                                        <input
+                                            type="text"
+                                            placeholder="Role (e.g., Editor, Colorist)"
+                                            value={member.name}
+                                            onChange={(e) => handleTeamMemberChange(index, 'name', e.target.value)}
+                                            className="flex-1 px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="Count"
+                                            value={member.count}
+                                            onChange={(e) => handleTeamMemberChange(index, 'count', parseInt(e.target.value) || 1)}
+                                            className="w-24 px-4 py-3 bg-gray-900 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+                                            min="1"
+                                        />
+                                        {newProject.teamMembers.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => removeTeamMember(index)}
+                                                className="px-3 py-3 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={addTeamMember}
+                                className="mt-3 flex items-center space-x-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                            >
+                                <Plus className="w-4 h-4" />
+                                <span>Add Team Member</span>
+                            </button>
+                        </div>
+
+                        <div className="flex gap-4 pt-4">
+                            <button
+                                type="submit"
+                                className="flex-1 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium"
+                            >
+                                Create Project
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate('/projectdashboard')}
+                                className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
         </div>
     );
 };
